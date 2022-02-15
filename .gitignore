@@ -1,0 +1,10 @@
+# gitignore
+
+# test file
+tesy.py
+
+# config file
+config.py
+
+# refer png
+martingaleTrading.png
