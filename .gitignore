@@ -8,3 +8,6 @@ config.py
 
 # refer png
 martingaleTrading.png
+
+# api key
+upbit.txt
