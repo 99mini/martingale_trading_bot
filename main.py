@@ -71,12 +71,21 @@ def sell_order(ticker, price, volume):
 '''
 
 # init setting
+# 거래 코인
 TICKER = 'KRW-BORA'
+# 1회 매수 금액
 ONE_ORDER_AMOUNT = 5_050
+# 프로그램 밴딩 상단
 TOP = 1250
+# 프로그램 밴딩 하단
 BOTTOM = 1150
+# 거래 간격
 INTERVAL = 15
+# 거래 코인 1틱 가격
 TICK = 5
+
+# 보유 현금 잔고
+krw_balance = upbit.get_balances()['balance']
 
 cur_price = pyupbit.get_current_price(ticker=TICKER) + TICK
 base_price = cur_price
