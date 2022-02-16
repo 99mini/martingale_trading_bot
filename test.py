@@ -13,5 +13,5 @@ TICKER = 'KRW-ONG'
 
 # upbit class instance
 upbit = pyupbit.Upbit(ACCESS_KEY, SECRET_KEY)
-print(upbit.get_balances()['balance'])
+print(upbit.get_balance())
 

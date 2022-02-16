@@ -58,9 +58,10 @@ def sell_order(ticker, price, volume):
 '''
 초기설정
 1. 트레이딩할 코인 설정
-2. 1회 주문 자금
+2. 1회 주문 자금 (1회 주문 자금은 보유 자산의 최소 1/20 씩 들어가야 된다.)
 3. 트레이딩 상단가 / 하단가 설정 (박스권을 설정)
 4. 목표 인터벌 설정 (호가 단위)
+5. 코인의 틱 단위 설정
 
 프로그램 시작
 1. 프로그램 시작 시 현재 가격을 (기준)으로 삼고 지정가 매수 주문
@@ -72,20 +73,21 @@ def sell_order(ticker, price, volume):
 
 # init setting
 # 거래 코인
-TICKER = 'KRW-BORA'
+TICKER = 'KRW-SAND'
 # 1회 매수 금액
 ONE_ORDER_AMOUNT = 5_050
 # 프로그램 밴딩 상단
-TOP = 1250
+TOP = 5800
 # 프로그램 밴딩 하단
-BOTTOM = 1150
+BOTTOM = 4500
 # 거래 간격
-INTERVAL = 15
+INTERVAL = 20
 # 거래 코인 1틱 가격
 TICK = 5
 
 # 보유 현금 잔고
-krw_balance = upbit.get_balances()['balance']
+krw_balance = upbit.get_balance()
+print("보유 현금 잔고: ", krw_balance)
 
 cur_price = pyupbit.get_current_price(ticker=TICKER) + TICK
 base_price = cur_price
@@ -123,6 +125,7 @@ while True:
         # 기준가 도달시 매수와 예약 매도 실행
         # 가격 하락시 매수
         if base_price - INTERVAL == cur_price + TICK or base_price + INTERVAL == cur_price + TICK:
+            order_volume = ONE_ORDER_AMOUNT / cur_price
             time.sleep(1)
             # 구매 주문
             # 하락시
