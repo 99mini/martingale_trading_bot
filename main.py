@@ -19,8 +19,6 @@ all_ticker_url = "https://api.upbit.com/v1/ticker"
 4. 상기 2번으로 회기
 '''
 
-# init setting
-
 martingale_bot = MartingaleBot()
 
 while True:

@@ -117,7 +117,6 @@ class MartingaleBot():
         order_list = self.upbit.get_order(ticker_or_uuid=TICKER)
         for order in order_list:
             uuid = order['uuid']
-            print(uuid)
             self.upbit.cancel_order(uuid=uuid)
         time.sleep(1)
         # 전량 매도
@@ -139,21 +138,23 @@ class MartingaleBot():
         cur_price = pyupbit.get_current_price(ticker=TICKER) + TICK
         self._base_price = cur_price
         order_volume = ONE_ORDER_AMOUNT / cur_price
-        buy_uuid = self._buy_order(ticker=TICKER,
-                                   price=cur_price,
-                                   volume=order_volume)
-        if not self.upbit.get_individual_order(buy_uuid)['trades']:
-            print('not init buy......')
-            time.sleep(10)
-            # 매수 취소 후 exit
-            self.upbit.cancel_order(buy_uuid)
-            exit()
-        self._sell_order(ticker=TICKER,
-                         price=cur_price + INTERVAL,
-                         volume=order_volume)
-        print("#" * 100)
-        print("매수: {0}".format(cur_price))
-        print("예약 매도: {0}".format(cur_price + INTERVAL))
-        print("수량: {0}".format(order_volume))
-        print("목표가: {0} | {1}".format(self._base_price - INTERVAL, self._base_price + INTERVAL))
-        print("#" * 100)
+
+        if krw_balance > ONE_ORDER_AMOUNT:
+            buy_uuid = self._buy_order(ticker=TICKER,
+                                       price=cur_price,
+                                       volume=order_volume)
+            if not self.upbit.get_individual_order(buy_uuid)['trades']:
+                print('not init buy......')
+                time.sleep(10)
+                # 매수 취소 후 exit
+                self.upbit.cancel_order(buy_uuid)
+                exit()
+            self._sell_order(ticker=TICKER,
+                             price=cur_price + INTERVAL,
+                             volume=order_volume)
+            print("#" * 100)
+            print("매수: {0}".format(cur_price))
+            print("예약 매도: {0}".format(cur_price + INTERVAL))
+            print("수량: {0}".format(order_volume))
+            print("목표가: {0} | {1}".format(self._base_price - INTERVAL, self._base_price + INTERVAL))
+            print("#" * 100)
