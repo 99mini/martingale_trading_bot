@@ -19,7 +19,7 @@ class MartingaleBot():
 
         # upbit class instance
         self.upbit = pyupbit.Upbit(ACCESS_KEY, SECRET_KEY)
-        self.base_price = self._init_setting()
+        self._init_setting()
 
     def exec_martingale_bot(self):
         cur_price = pyupbit.get_current_price(ticker=TICKER)
@@ -35,16 +35,16 @@ class MartingaleBot():
 
             # 기준가 도달시 매수와 예약 매도 실행
         # 가격 하락시 매수
-        if self.base_price - INTERVAL == cur_price + TICK or self.base_price + INTERVAL == cur_price + TICK:
+        if self._base_price - INTERVAL == cur_price + TICK or self._base_price + INTERVAL == cur_price + TICK:
             order_volume = ONE_ORDER_AMOUNT / cur_price
             time.sleep(1)
             # 구매 주문
             # 하락시
-            if self.base_price - INTERVAL == cur_price + TICK:
-                order_price = self.base_price - INTERVAL
+            if self._base_price - INTERVAL == cur_price + TICK:
+                order_price = self._base_price - INTERVAL
             # 상승시
             else:
-                order_price = self.base_price + INTERVAL
+                order_price = self._base_price + INTERVAL
             buy_uuid = self._buy_order(ticker=TICKER,
                                        price=order_price,
                                        volume=order_volume)
@@ -62,20 +62,20 @@ class MartingaleBot():
                              price=order_price + INTERVAL,
                              volume=order_volume)
 
-            base_price = order_price
+            _base_price = order_price
             print("매수: {0}".format(cur_price))
             print("예약 매도: {0}".format(cur_price + INTERVAL))
             print("수량: {0}".format(order_volume))
-            print("목표가: {0} | {1}".format(base_price - INTERVAL, base_price + INTERVAL))
+            print("목표가: {0} | {1}".format(_base_price - INTERVAL, _base_price + INTERVAL))
             print("#" * 100)
 
         if datetime.datetime.now().second % 10 == 0:
             print("=" * 100)
             print(datetime.datetime.now())
             print("현금 잔고: {0}".format(krw_balance))
-            print("기준 가격: {0}".format(self.base_price))
+            print("기준 가격: {0}".format(self._base_price))
             print("현재 가격: {0}".format(cur_price))
-            print("목표가: {0} | {1}".format(self.base_price - INTERVAL, self.base_price + INTERVAL))
+            print("목표가: {0} | {1}".format(self._base_price - INTERVAL, self._base_price + INTERVAL))
             print("목표 인터벌: {0}".format(INTERVAL))
 
     # 텔레그램 메세지 보내기
@@ -137,7 +137,7 @@ class MartingaleBot():
         print("보유 현금 잔고: ", krw_balance)
 
         cur_price = pyupbit.get_current_price(ticker=TICKER) + TICK
-        base_price = cur_price
+        self._base_price = cur_price
         order_volume = ONE_ORDER_AMOUNT / cur_price
         buy_uuid = self._buy_order(ticker=TICKER,
                                    price=cur_price,
@@ -155,7 +155,5 @@ class MartingaleBot():
         print("매수: {0}".format(cur_price))
         print("예약 매도: {0}".format(cur_price + INTERVAL))
         print("수량: {0}".format(order_volume))
-        print("목표가: {0} | {1}".format(base_price - INTERVAL, base_price + INTERVAL))
+        print("목표가: {0} | {1}".format(self._base_price - INTERVAL, self._base_price + INTERVAL))
         print("#" * 100)
-
-        return base_price
