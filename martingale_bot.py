@@ -8,7 +8,7 @@ from config import *
 from constants import *
 
 
-class MartingaleBot():
+class MartingaleBot:
     def __init__(self):
         # read upbit key
         f = open("upbit.txt")
@@ -20,8 +20,6 @@ class MartingaleBot():
         # upbit class instance
         self.upbit = pyupbit.Upbit(ACCESS_KEY, SECRET_KEY)
         self._init_setting()
-
-
 
     def exec_martingale_bot(self):
         cur_price = pyupbit.get_current_price(ticker=TICKER)
@@ -35,40 +33,17 @@ class MartingaleBot():
         if krw_balance < ONE_ORDER_AMOUNT:
             return
 
+        # 목표가를 지나쳐 간 경우
+        if self._base_price - INTERVAL < cur_price or self._base_price + INTERVAL > cur_price:
+            self._order_logic(cur_price)
+
         # 기준가 도달시 매수와 예약 매도 실행
         # 가격 하락시 매수
         if self._base_price - INTERVAL == cur_price or self._base_price + INTERVAL == cur_price:
-            order_volume = ONE_ORDER_AMOUNT / cur_price
-            time.sleep(1)
-            # 구매 주문
-            # 하락시
-            if self._base_price - INTERVAL == cur_price:
-                order_price = self._base_price - INTERVAL
-            # 상승시
-            else:
-                order_price = self._base_price + INTERVAL
-            buy_uuid = self._buy_order(ticker=TICKER,
-                                       price=order_price,
-                                       volume=order_volume)
+            self._order_logic(cur_price)
 
-            # 구매가 안되었을 경우 기다린다
-            if not self.upbit.get_individual_order(buy_uuid)['trades']:
-                print('not init buy......')
-                time.sleep(3)
-                resp = self.upbit.cancel_order(buy_uuid)
-                # 매수 취소가 수행되었으면 리턴
-                if resp is not None:
-                    return
-
-                # 예약 매도 주문
-            self._sell_order(ticker=TICKER,
-                             price=order_price + INTERVAL,
-                             volume=order_volume)
-
-            self._base_price = order_price
             print("매수: {0}".format(cur_price))
             print("예약 매도: {0}".format(cur_price + INTERVAL))
-            print("수량: {0}".format(order_volume))
             print("목표가: {0} | {1}".format(self._base_price - INTERVAL, self._base_price + INTERVAL))
             print("#" * 100)
 
@@ -89,6 +64,37 @@ class MartingaleBot():
             requests.get(teleurl, params=params)
         except Exception as e:
             print('telegram error: ', e)
+
+    # 주문 로직
+    def _order_logic(self, cur_price):
+        order_volume = ONE_ORDER_AMOUNT / cur_price
+        time.sleep(1)
+        # 구매 주문
+        # 하락시
+        if self._base_price - INTERVAL == cur_price:
+            order_price = self._base_price - INTERVAL
+        # 상승시
+        else:
+            order_price = self._base_price + INTERVAL
+        buy_uuid = self._buy_order(ticker=TICKER,
+                                   price=order_price,
+                                   volume=order_volume)
+
+        # 구매가 안되었을 경우 기다린다
+        if not self.upbit.get_individual_order(buy_uuid)['trades']:
+            print('not init buy......')
+            time.sleep(3)
+            resp = self.upbit.cancel_order(buy_uuid)
+            # 매수 취소가 수행되었으면 리턴
+            if resp is not None:
+                return
+
+            # 예약 매도 주문
+        self._sell_order(ticker=TICKER,
+                         price=order_price + INTERVAL,
+                         volume=order_volume)
+
+        self._base_price = order_price
 
     # 매수 주문
     def _buy_order(self, ticker, price, volume):
