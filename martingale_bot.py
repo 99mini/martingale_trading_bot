@@ -31,6 +31,7 @@ class MartingaleBot:
 
         # 보유 현금이 1회 주문 금액 보다 작아지면 지나간다.
         if krw_balance < ONE_ORDER_AMOUNT:
+            self._base_price = cur_price
             return
 
         # 목표가를 지나쳐 간 경우
@@ -152,7 +153,12 @@ class MartingaleBot:
         self._base_price = cur_price
         order_volume = ONE_ORDER_AMOUNT / cur_price
 
-        if krw_balance > ONE_ORDER_AMOUNT:
+        # 이미 보유 코인이 있는 경우
+        amount = self.upbit.get_balance_t(ticker=TICKER)
+        if amount * ONE_ORDER_AMOUNT > ONE_ORDER_AMOUNT:
+            pass
+
+        elif krw_balance > ONE_ORDER_AMOUNT:
             buy_uuid = self._buy_order(ticker=TICKER,
                                        price=cur_price,
                                        volume=order_volume)
@@ -173,5 +179,5 @@ class MartingaleBot:
             print("목표가: {0} | {1}".format(self._base_price - INTERVAL, self._base_price + INTERVAL))
             print("#" * 100)
 
-            msg = "upbit martingale start\n거래 코인: {0}\n초기 자금: {1}".format(TICKER, krw_balance)
-            self._telegramMassageBot(msg)
+        msg = "upbit martingale start\n거래 코인: {0}\n초기 자금: {1}".format(TICKER, krw_balance)
+        self._telegramMassageBot(msg)
