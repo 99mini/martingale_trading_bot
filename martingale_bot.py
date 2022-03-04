@@ -68,6 +68,11 @@ class MartingaleBot:
 
     # 주문 로직
     def _order_logic(self, cur_price):
+
+        # 예약 매도가 이미 있는 경우 return
+        if self._check_wait_order(cur_price + INTERVAL):
+            return
+
         order_volume = ONE_ORDER_AMOUNT / cur_price
         time.sleep(1)
         # 구매 주문
@@ -122,7 +127,7 @@ class MartingaleBot:
         except Exception as e:
             print("sell_order", e)
 
-    # 예약 매수 확인하기
+    # 예약 매도 확인하기
     def _check_wait_order(self, price):
         wait_orders = self.upbit.get_order(ticker_or_uuid=TICKER)
         price = str(float(price))
