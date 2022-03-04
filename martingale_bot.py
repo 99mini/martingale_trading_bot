@@ -122,6 +122,14 @@ class MartingaleBot:
         except Exception as e:
             print("sell_order", e)
 
+    # 예약 매수 확인하기
+    def _check_wait_order(self, price):
+        wait_orders = self.upbit.get_order(ticker_or_uuid=TICKER)
+        price = str(float(price))
+        for order in wait_orders:
+            if price == order['price']:
+                return True
+
     def _exec_exit(self):
         # 미채결 주문 취소
         order_list = self.upbit.get_order(ticker_or_uuid=TICKER)
